@@ -21,10 +21,10 @@ ynh_abort_if_errors
 
 domain=$YNH_APP_ARG_DOMAIN
 path_url=$YNH_APP_ARG_PATH
-admin=$YNH_APP_ARG_ADMIN
 is_public=$YNH_APP_ARG_IS_PUBLIC
 
 app=$YNH_APP_INSTANCE_NAME
+port=$(ynh_find_port 3000)	# Cherche un port libre.
 
 #=================================================
 # CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
@@ -43,8 +43,8 @@ ynh_webpath_register $app $domain $path_url
 
 ynh_app_setting_set $app domain $domain
 ynh_app_setting_set $app path $path_url
-ynh_app_setting_set $app admin $admin
 ynh_app_setting_set $app is_public $is_public
+ynh_app_setting_set $app port $port
 
 #=================================================
 # STANDARD MODIFICATIONS
@@ -62,27 +62,47 @@ ynh_app_setting_set $app port $port
 # INSTALL DEPENDENCIES
 #=================================================
 
-ynh_install_app_dependencies deb1 deb2
+sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A14518585931BC711F9BA15703C6
+echo "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/3.4 main" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.4.list
+sudo apt-get update
+sudo apt-get install -yy -qq mongodb-org
 
 #=================================================
-# CREATE A MYSQL DATABASE
+# CREATE A SQL BDD
 #=================================================
 
-db_name=$(ynh_sanitize_dbid $app)
-ynh_app_setting_set $app db_name $db_name
-ynh_mysql_setup_db $db_name $db_name
+pushd $final_path
+dbname=$app
+dbuser=$app
+dbpass=$(ynh_string_random)
+sudo mongo --shell "$dbname" --eval 'db.createUser( { user: "'${dbuser}'", pwd: "'${dbpass}'", roles: [ "readWrite" ] } );' <<< exit
+sudo mongo --shell "$dbname" --eval 'db.grantRolesToUser("'${dbuser}'",[{ role: "clusterMonitor", db: "admin" }]);' <<< exit
+popd
 
-mv ../conf/config.php $final_path
-ynh_replace_string "DB_NAME" "$db_name" "$final_path/config.php"
-ynh_replace_string "DB_USER" "$db_user" "$final_path/config.php"
-ynh_replace_string "DB_PASS" "$db_pass" "$final_path/config.php"
+#=================================================
+# INSTALL NODEJS
+#=================================================
+version=8.0.0
+ynh_install_nodejs 8.0.0
+
+#=================================================
+# NODEJS Version
+#=================================================
+
+ynh_use_nodejs
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 
+sudo service mongod start
 ynh_app_setting_set $app final_path $final_path
 ynh_setup_source "$final_path"
+pushd $final_path
+make packages
+make
+make run
+popd
 
 #=================================================
 # NGINX CONFIGURATION
@@ -110,12 +130,6 @@ ynh_add_fpm_config
 ynh_systemd_config
 
 #=================================================
-# STORE THE CHECKSUM OF THE CONFIG FILE
-#=================================================
-
-ynh_store_file_checksum "$final_path/config.php"
-
-#=================================================
 # GENERIC FINALIZATION
 #=================================================
 # SECURE FILES AND DIRECTORIES
@@ -123,9 +137,7 @@ ynh_store_file_checksum "$final_path/config.php"
 
 # Set permissions to app files
 chown -R $app:www-data $final_path
-chmod 755 $final_path -R
-chmod 777 $final_path/cache -R
-chmodd 777 $final_path/img/avatars -R
+chmod 775 $final_path -R
 
 #=================================================
 # SETUP LOGROTATE
