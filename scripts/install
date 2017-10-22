@@ -78,6 +78,7 @@ ynh_setup_source "$final_path"
 # CREATE A SQL BDD
 #=================================================
 
+sudo mkdir -p /data/db
 pushd $final_path
 dbname=$app
 dbuser=$app
