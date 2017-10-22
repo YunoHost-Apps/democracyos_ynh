@@ -27,7 +27,7 @@ final_path=$(ynh_app_setting_get $app final_path)
 # REMOVE THE MYSQL DATABASE
 #=================================================
 
-sudo mongo --shell "$dbname" --eval 'db.dropUser("'${dbuser}'", {w: "majority", wtimeout: 5000})' <<< exit
+sudo mongo --shell "$dbname" --eval 'db.dropUser("'${dbuser}'", {w: "majority", wtimeout: 5000});' <<< exit
 
 #=================================================
 # REMOVE APP MAIN DIR
