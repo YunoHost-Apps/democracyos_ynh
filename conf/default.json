@@ -3,7 +3,7 @@
   "protocol": "http",
   "warnHTTP": true,
   "host": "localhost",
-  "publicPort": 3000,
+  "publicPort": _PORT_,
   "mongoUrl": "mongodb://_DB_USER_:__DB_PASS__@localhost:27017/__DB_NAME__",
   "mongoUsersUrl": "",
   "jwtSecret": "_SECRET_",
