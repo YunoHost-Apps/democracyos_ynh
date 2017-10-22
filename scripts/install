@@ -103,7 +103,7 @@ ynh_replace_string "_PORT_" "$port" "../conf/default.json"
 # INSTALL NODEJS
 #=================================================
 
-node_version=8.5.3
+node_version=8.7.0
 ynh_install_nodejs $node_version
 
 #=================================================
