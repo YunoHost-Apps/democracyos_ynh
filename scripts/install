@@ -68,6 +68,13 @@ sudo apt-get update
 sudo apt-get install -yy -qq mongodb-org
 
 #=================================================
+# DOWNLOAD, CHECK AND UNPACK SOURCE
+#=================================================
+
+ynh_app_setting_set $app final_path $final_path
+ynh_setup_source "$final_path"
+
+#=================================================
 # CREATE A SQL BDD
 #=================================================
 
@@ -103,12 +110,10 @@ ynh_install_nodejs $node_version
 ynh_use_nodejs
 
 #=================================================
-# DOWNLOAD, CHECK AND UNPACK SOURCE
+# INSTALL APP
 #=================================================
 
 sudo service mongod start
-ynh_app_setting_set $app final_path $final_path
-ynh_setup_source "$final_path"
 mv ../conf/default.json $final_path/config/defaults.json
 pushd $final_path
 make packages
