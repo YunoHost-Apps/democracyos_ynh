@@ -79,6 +79,7 @@ ynh_setup_source "$final_path"
 #=================================================
 
 sudo mkdir -p /data/db
+sudo service mongod start
 pushd $final_path
 dbname=$app
 dbuser=$app
@@ -114,7 +115,6 @@ ynh_use_nodejs
 # INSTALL APP
 #=================================================
 
-sudo service mongod start
 mv ../conf/default.json $final_path/config/defaults.json
 pushd $final_path
 make packages
