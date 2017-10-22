@@ -80,10 +80,21 @@ sudo mongo --shell "$dbname" --eval 'db.grantRolesToUser("'${dbuser}'",[{ role: 
 popd
 
 #=================================================
+# CONFIG.JSON
+#=================================================
+secret=$(ynh_string_random)
+ynh_replace_string "_DB_USER_" "$dbuser" "../conf/default.json"
+ynh_replace_string "__DB_PASS__" "$dbpass" "../conf/default.json"
+ynh_replace_string "__DB_NAME__" "$dbname" "../conf/default.json"
+ynh_replace_string "_SECRET_" "$secret" "../conf/default.json"
+ynh_replace_string "_PORT_" "$port" "../conf/default.json"
+
+#=================================================
 # INSTALL NODEJS
 #=================================================
-version=8.0.0
-ynh_install_nodejs 8.0.0
+
+node_version=8.5.3
+ynh_install_nodejs $node_version
 
 #=================================================
 # NODEJS Version
@@ -98,10 +109,11 @@ ynh_use_nodejs
 sudo service mongod start
 ynh_app_setting_set $app final_path $final_path
 ynh_setup_source "$final_path"
+mv ../conf/default.json $final_path/config/defaults.json
 pushd $final_path
 make packages
-make
-make run
+sudo_path npm install NODE_ENV=production
+sudo_path npm run build NODE_ENV=production
 popd
 
 #=================================================
@@ -126,7 +138,9 @@ ynh_add_fpm_config
 # SETUP SYSTEMD
 #=================================================
 
-# Create a dedicated systemd config
+ynh_replace_string "__NODE__" "$nodejs_path" "../conf/systemd.service"
+ynh_replace_string "__NODEJS__" "$nodejs_use_version" "../conf/systemd.service"
+ynh_replace_string "__ENV_PATH__" "$PATH" "../conf/systemd.service"
 ynh_systemd_config
 
 #=================================================
@@ -163,3 +177,9 @@ fi
 #=================================================
 
 systemctl reload nginx
+
+#=================================================
+# SERVICE
+#=================================================
+
+systemctl start $app.service
