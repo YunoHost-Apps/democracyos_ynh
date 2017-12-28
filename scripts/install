@@ -62,13 +62,13 @@ ynh_app_setting_set $app port $port
 # INSTALL DEPENDENCIES
 #=================================================
 
-sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2930ADAE8CAF5059EE73BB4B58712A2291FA4AD5
+apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2930ADAE8CAF5059EE73BB4B58712A2291FA4AD5
 echo "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/3.6 main" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.6.list
-sudo apt-get update
-sudo apt-get install -yy -qq mongodb-org
-sudo mkdir -p /data/db
-sudo service mongod start
-sudo service mongod status
+apt-get update
+apt-get install -yy -qq mongodb-org
+mkdir -p /data/db
+service mongod start
+service mongod status
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -85,8 +85,8 @@ pushd $final_path
 dbname=$app
 dbuser=$app
 dbpass=$(ynh_string_random)
-sudo mongo --shell "$dbname" --eval 'db.createUser( { user: "'${dbuser}'", pwd: "'${dbpass}'", roles: [ "readWrite" ] } );' <<< exit
-sudo mongo --shell "$dbname" --eval 'db.grantRolesToUser("'${dbuser}'",[{ role: "clusterMonitor", db: "admin" }]);' <<< exit
+mongo --shell "$dbname" --eval 'db.createUser( { user: "'${dbuser}'", pwd: "'${dbpass}'", roles: [ "readWrite" ] } );' <<< exit
+mongo --shell "$dbname" --eval 'db.grantRolesToUser("'${dbuser}'",[{ role: "clusterMonitor", db: "admin" }]);' <<< exit
 popd
 ynh_app_setting_set $app dbuser $dbuser
 ynh_app_setting_set $app dbname $dbname
