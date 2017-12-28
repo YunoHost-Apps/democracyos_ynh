@@ -20,7 +20,7 @@ ynh_abort_if_errors
 #=================================================
 
 domain=$YNH_APP_ARG_DOMAIN
-https://github.com/YunoHost-Apps/phpmyadmin_ynh/pull/68path_url=$YNH_APP_ARG_PATH
+path_url=$YNH_APP_ARG_PATH
 is_public=$YNH_APP_ARG_IS_PUBLIC
 
 app=$YNH_APP_INSTANCE_NAME
@@ -33,7 +33,7 @@ port=$(ynh_find_port 3000)	# Cherche un port libre.
 final_path=/var/www/$app
 test ! -e "$final_path" || ynh_die "This path already contains a folder"
 
-#path_url=$(ynh_normalize_url_path $path_url)
+path_url=$(ynh_normalize_url_path $path_url)
 #ynh_webpath_available $domain $path_url
 #ynh_webpath_register $app $domain $path_url
 
