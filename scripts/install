@@ -106,7 +106,7 @@ ynh_replace_string "_PORT_" "$port" "../conf/default.json"
 # INSTALL NODEJS
 #=================================================
 
-node_version=8.7.0
+node_version=8.9.3
 ynh_install_nodejs $node_version
 
 #=================================================
@@ -122,8 +122,8 @@ ynh_use_nodejs
 mv ../conf/default.json $final_path/config/defaults.json
 pushd $final_path
 make packages
-sudo_path npm install NODE_ENV=production
-sudo_path npm run build NODE_ENV=production
+npm install NODE_ENV=production
+npm run build NODE_ENV=production
 popd
 
 #=================================================
