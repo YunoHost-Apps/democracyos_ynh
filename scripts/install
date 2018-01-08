@@ -123,8 +123,7 @@ mv ../conf/default.json $final_path/config/defaults.json
 pushd $final_path
 make packages
 npm install NODE_ENV=production
-node ./bin/dos-install 
-node ./bin/dos-build
+npm run build
 popd
 
 #=================================================
